@@ -2,12 +2,69 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { WordCard } from '@/components/word-card';
 import type { VocabularyWord } from '@/lib/types';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, BookCheck, Gamepad2 } from 'lucide-react';
+import { ArrowLeft, Gamepad2, ChevronDown } from 'lucide-react';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Switch } from '@/components/ui/switch';
+import { Badge } from '@/components/ui/badge';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { cn } from '@/lib/utils';
+
+function VocabularyRow({ word, onStatusChange }: { word: VocabularyWord, onStatusChange: (id: string, status: 'learning' | 'known') => void }) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <>
+      <TableRow className={cn(word.status === 'learning' && 'bg-accent/10')}>
+        <TableCell className="w-12">
+           <CollapsibleTrigger asChild>
+            <Button variant="ghost" size="icon" onClick={() => setIsOpen(!isOpen)}>
+              <ChevronDown className={cn("h-4 w-4 transition-transform", isOpen && "rotate-180")} />
+            </Button>
+          </CollapsibleTrigger>
+        </TableCell>
+        <TableCell className="font-medium text-lg">{word.word}</TableCell>
+        <TableCell className="text-muted-foreground italic">{word.meaning}</TableCell>
+        <TableCell className="text-right w-[200px]">
+          <div className="flex items-center justify-end gap-3">
+             <span className={cn("text-sm", word.status === 'learning' ? 'text-accent font-semibold' : 'text-muted-foreground')}>
+              Learning
+            </span>
+            <Switch
+              checked={word.status === 'known'}
+              onCheckedChange={(checked) => onStatusChange(word.id, checked ? 'known' : 'learning')}
+              aria-label="Toggle learning status"
+            />
+             <span className={cn("text-sm", word.status === 'known' ? 'text-primary font-semibold' : 'text-muted-foreground')}>
+              Known
+            </span>
+          </div>
+        </TableCell>
+      </TableRow>
+      <CollapsibleContent asChild>
+          <TableRow>
+            <TableCell colSpan={4} className="p-0">
+                <div className="p-6 bg-muted/50">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <h4 className="font-semibold mb-2">Example Sentence</h4>
+                            <p className="text-muted-foreground">{word.exampleSentence}</p>
+                        </div>
+                        <div>
+                            <h4 className="font-semibold mb-2">Mnemonic</h4>
+                            <p className="text-muted-foreground">{word.mnemonic}</p>
+                        </div>
+                    </div>
+                </div>
+            </TableCell>
+          </TableRow>
+      </CollapsibleContent>
+    </>
+  )
+}
 
 export default function LearnPage() {
   const [vocabulary, setVocabulary] = useState<VocabularyWord[]>([]);
@@ -19,12 +76,14 @@ export default function LearnPage() {
       const storedVocabulary = sessionStorage.getItem('vocabulary');
       if (storedVocabulary) {
         setVocabulary(JSON.parse(storedVocabulary));
+      } else {
+        router.push('/');
       }
     } catch (error) {
       console.error("Could not parse vocabulary from sessionStorage", error);
     }
     setHydrated(true);
-  }, []);
+  }, [router]);
 
   useEffect(() => {
     if (hydrated && vocabulary.length === 0) {
@@ -46,19 +105,7 @@ export default function LearnPage() {
   }
 
   if (vocabulary.length === 0) {
-    return (
-        <div className="flex flex-col items-center justify-center min-h-screen text-center p-4">
-            <Card className="max-w-md">
-                <CardHeader>
-                    <CardTitle>No Vocabulary Found</CardTitle>
-                    <CardDescription>You haven't generated any words to learn yet.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <p className="mb-4">Redirecting you to the homepage to start your learning journey.</p>
-                </CardContent>
-            </Card>
-        </div>
-    );
+    return null; // Redirecting in useEffect
   }
 
   const wordsToLearn = vocabulary.filter(w => w.status === 'learning').length;
@@ -69,7 +116,7 @@ export default function LearnPage() {
         <div>
           <h1 className="text-4xl font-bold tracking-tight">Your Words</h1>
           <p className="text-muted-foreground mt-2">
-            Review the generated content and decide which words to focus on.
+            Here is your vocabulary list. Toggle the switch to mark words as known.
           </p>
         </div>
         <div className="flex gap-2">
@@ -88,15 +135,25 @@ export default function LearnPage() {
         </div>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {vocabulary.map((word) => (
-          <WordCard
-            key={word.id}
-            word={word}
-            onStatusChange={(status) => updateWordStatus(word.id, status)}
-          />
-        ))}
-      </div>
+      <Card>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-12"></TableHead>
+              <TableHead>German Word</TableHead>
+              <TableHead>Meaning</TableHead>
+              <TableHead className="text-right">Status</TableHead>
+            </TableRow>
+          </TableHeader>
+            <TableBody>
+            {vocabulary.map((word) => (
+              <Collapsible asChild key={word.id}>
+                <VocabularyRow word={word} onStatusChange={updateWordStatus} />
+              </Collapsible>
+            ))}
+          </TableBody>
+        </Table>
+      </Card>
     </div>
   );
 }
