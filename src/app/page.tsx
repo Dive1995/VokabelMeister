@@ -5,8 +5,8 @@ import { Logo } from '@/components/logo';
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-8 bg-grid-gray-200/40 dark:bg-grid-gray-700/40">
-      <div className="absolute pointer-events-none inset-0 flex items-center justify-center bg-background [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)]"></div>
+    <main className="flex min-h-screen flex-col items-center justify-center p-8 bg-background">
+      <div className="absolute inset-0 h-full w-full bg-background bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] dark:bg-[radial-gradient(#3f3f46_1px,transparent_1px)] [background-size:16px_16px] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_60%,transparent_100%)]"></div>
       <div className="w-full max-w-2xl z-10">
         <div className="text-center mb-12">
           <div className="flex justify-center mb-4">

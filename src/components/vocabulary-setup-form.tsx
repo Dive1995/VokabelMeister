@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Loader2 } from 'lucide-react';
@@ -41,7 +41,7 @@ type FormSchema = z.infer<typeof PasteWordsSchema> | z.infer<typeof GenerateWord
 
 export function VocabularySetupForm() {
   const [isLoading, setIsLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState('paste');
+  const [activeTab, setActiveTab] = useState('generate');
   const router = useRouter();
   const { toast } = useToast();
 
@@ -58,19 +58,29 @@ export function VocabularySetupForm() {
 
   async function handleFinalGeneration(words: string[]) {
     try {
+      // Get existing known words to provide context to the AI
+      const storedVocabulary: VocabularyWord[] = JSON.parse(sessionStorage.getItem('vocabulary') || '[]');
+      const knownWords = storedVocabulary.filter(w => w.status === 'known').map(w => w.word);
+
       const generatedContentPromises = words.map(word =>
-        generateVocabularyContent({ newWord: word })
+        generateVocabularyContent({ newWord: word, knownWords })
       );
 
       const results = await Promise.all(generatedContentPromises);
 
-      const vocabulary: VocabularyWord[] = results.map((content, index) => ({
+      const newVocabulary: VocabularyWord[] = results.map((content, index) => ({
         ...content,
-        id: `${content.word}-${index}`,
+        id: `${content.word}-${Date.now()}-${index}`, // More robust ID
         status: 'new',
       }));
 
-      sessionStorage.setItem('vocabulary', JSON.stringify(vocabulary));
+      // Combine new words with existing ones, avoiding duplicates
+      const existingWords = new Set(storedVocabulary.map(w => w.word));
+      const uniqueNewVocabulary = newVocabulary.filter(w => !existingWords.has(w.word));
+      const finalVocabulary = [...storedVocabulary, ...uniqueNewVocabulary];
+
+
+      sessionStorage.setItem('vocabulary', JSON.stringify(finalVocabulary));
       router.push('/learn');
     } catch (error) {
       console.error('Failed to generate vocabulary content:', error);
@@ -94,10 +104,14 @@ export function VocabularySetupForm() {
   async function onGenerateWordsSubmit(data: z.infer<typeof GenerateWordsSchema>) {
     setIsLoading(true);
     try {
+        const storedVocabulary: VocabularyWord[] = JSON.parse(sessionStorage.getItem('vocabulary') || '[]');
+        const knownWords = storedVocabulary.map(w => w.word);
+        
         const response = await generateVocabularyList({
             count: data.count,
             level: data.level,
-            category: data.category
+            category: data.category,
+            knownWords,
         });
         if (response.words && response.words.length > 0) {
             await handleFinalGeneration(response.words);
@@ -130,8 +144,8 @@ export function VocabularySetupForm() {
       <CardContent>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="paste">Paste Words</TabsTrigger>
             <TabsTrigger value="generate">Generate with AI</TabsTrigger>
+            <TabsTrigger value="paste">Paste Words</TabsTrigger>
           </TabsList>
           
           <TabsContent value="paste" className="pt-4">
@@ -154,7 +168,7 @@ export function VocabularySetupForm() {
                         </FormItem>
                     )}
                     />
-                    <Button type="submit" className="w-full" disabled={isLoading}>
+                    <Button type="submit" variant="accent" className="w-full" disabled={isLoading}>
                     {isLoading ? (
                         <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
