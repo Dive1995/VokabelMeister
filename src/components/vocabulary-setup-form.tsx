@@ -216,7 +216,7 @@ export function VocabularySetupForm() {
                             max={50}
                             step={1}
                             value={[field.value]}
-                            onValueValueChange={(value) => field.onChange(value[0])}
+                            onValueChange={(value) => field.onChange(value[0])}
                         />
                       </FormControl>
                       <FormMessage />

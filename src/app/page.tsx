@@ -52,7 +52,7 @@ export default function LandingPage() {
                 <section className="container grid lg:grid-cols-2 gap-12 items-center py-20 md:py-32">
                     <div className="space-y-6">
                         <h1 className="text-4xl md:text-6xl font-bold tracking-tighter">
-                            Master German Vocabulary <br/> the <span className="text-primary">Smart</span> Way.
+                            Master German Vocabulary <br/> the <span className="bg-gradient-to-r from-primary to-accent/80 bg-clip-text text-transparent">Smart</span> Way.
                         </h1>
                         <p className="text-lg text-muted-foreground max-w-xl">
                             Stop memorizing, start learning. VokabelMeister uses AI and spaced repetition to create personalized lessons and fun games, making your journey to fluency faster and more effective.
