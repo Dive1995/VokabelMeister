@@ -65,7 +65,7 @@ function VocabularyRow({ word, onStatusChange }: { word: VocabularyWord, onStatu
                             <div>
                                 <h4 className="font-semibold mb-2">Example Sentences</h4>
                                 <ul className="space-y-2 text-muted-foreground">
-                                {word.example_sentences.map((ex, i) => (
+                                {word.example_sentences && word.example_sentences.map((ex, i) => (
                                     <li key={i}>
                                         <p>{ex.de}</p>
                                         <p className="italic text-sm">{ex.en}</p>
