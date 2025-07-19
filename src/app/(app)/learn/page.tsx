@@ -4,7 +4,7 @@ import { useEffect, useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import type { VocabularyWord } from '@/lib/types';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Gamepad2, ChevronDown, ListFilter, List, BookCheck, Book } from 'lucide-react';
+import { ArrowLeft, Gamepad2, ChevronDown, ListFilter, List, BookCheck, Book, Hash, BarChart3 } from 'lucide-react';
 import Link from 'next/link';
 import { Card } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -14,6 +14,7 @@ import { cn } from '@/lib/utils';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
 
 function VocabularyRow({ word, onStatusChange }: { word: VocabularyWord, onStatusChange: (id: string, status: 'learning' | 'known') => void }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -82,6 +83,16 @@ function VocabularyRow({ word, onStatusChange }: { word: VocabularyWord, onStatu
                                     {word.plural && <Badge variant="outline">Plural: {word.plural}</Badge>}
                                 </div>
                             </div>
+                            {word.tags && word.tags.length > 0 && (
+                                <div>
+                                    <h4 className="font-semibold mb-2">Tags</h4>
+                                     <div className="flex flex-wrap gap-2">
+                                        {word.tags.map((tag, i) => (
+                                            <Badge key={i} variant="secondary">{tag}</Badge>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
                             {word.breakdown && word.breakdown.length > 0 && (
                                 <div>
                                     <h4 className="font-semibold mb-2">Word Breakdown</h4>
@@ -116,24 +127,34 @@ function VocabularyRow({ word, onStatusChange }: { word: VocabularyWord, onStatu
   )
 }
 
-function FilterSidebar({ filterStatus, onFilterChange }: { filterStatus: string, onFilterChange: (status: string) => void }) {
-    const filters = [
+function FilterSidebar({
+    filters,
+    onFilterChange,
+    allTags,
+    allLevels
+}: {
+    filters: { status: string; level: string; tag: string };
+    onFilterChange: (type: 'status' | 'level' | 'tag', value: string) => void;
+    allTags: string[];
+    allLevels: string[];
+}) {
+    const statusFilters = [
         { id: 'all', label: 'All', icon: List },
         { id: 'learning', label: 'Learning', icon: Book },
         { id: 'known', label: 'Known', icon: BookCheck },
     ];
     
     return (
-        <div className="space-y-4">
+        <div className="space-y-6">
             <div>
                 <h3 className="text-lg font-semibold text-foreground mb-3 px-2">Status</h3>
                 <div className="space-y-1">
-                    {filters.map(filter => (
+                    {statusFilters.map(filter => (
                         <Button
                             key={filter.id}
-                            variant={filterStatus === filter.id ? 'default' : 'ghost'}
+                            variant={filters.status === filter.id ? 'default' : 'ghost'}
                             className="w-full justify-start text-base"
-                            onClick={() => onFilterChange(filter.id)}
+                            onClick={() => onFilterChange('status', filter.id)}
                         >
                             <filter.icon className="mr-2 h-5 w-5" />
                             {filter.label}
@@ -141,6 +162,57 @@ function FilterSidebar({ filterStatus, onFilterChange }: { filterStatus: string,
                     ))}
                 </div>
             </div>
+
+            <Separator />
+            
+            <div>
+                <h3 className="text-lg font-semibold text-foreground mb-3 px-2">Level</h3>
+                <div className="space-y-1">
+                     <Button
+                        variant={filters.level === 'all' ? 'default' : 'ghost'}
+                        className="w-full justify-start text-base"
+                        onClick={() => onFilterChange('level', 'all')}
+                    >
+                        <BarChart3 className="mr-2 h-5 w-5" /> All Levels
+                    </Button>
+                    {allLevels.map(level => (
+                        <Button
+                            key={level}
+                            variant={filters.level === level ? 'default' : 'ghost'}
+                            className="w-full justify-start text-base"
+                            onClick={() => onFilterChange('level', level)}
+                        >
+                           <span className="mr-2 h-5 w-5" /> {level}
+                        </Button>
+                    ))}
+                </div>
+            </div>
+
+            <Separator />
+
+             <div>
+                <h3 className="text-lg font-semibold text-foreground mb-3 px-2">Tags</h3>
+                <div className="space-y-1">
+                     <Button
+                        variant={filters.tag === 'all' ? 'default' : 'ghost'}
+                        className="w-full justify-start text-base"
+                        onClick={() => onFilterChange('tag', 'all')}
+                    >
+                        <Hash className="mr-2 h-5 w-5" /> All Tags
+                    </Button>
+                    {allTags.map(tag => (
+                        <Button
+                            key={tag}
+                            variant={filters.tag === tag ? 'default' : 'ghost'}
+                            className="w-full justify-start text-base capitalize"
+                            onClick={() => onFilterChange('tag', tag)}
+                        >
+                           <span className="mr-2 h-5 w-5" /> {tag}
+                        </Button>
+                    ))}
+                </div>
+            </div>
+
         </div>
     );
 }
@@ -149,7 +221,7 @@ function FilterSidebar({ filterStatus, onFilterChange }: { filterStatus: string,
 export default function LearnPage() {
   const [vocabulary, setVocabulary] = useState<VocabularyWord[]>([]);
   const [hydrated, setHydrated] = useState(false);
-  const [filterStatus, setFilterStatus] = useState('all'); // 'all', 'learning', 'known'
+  const [filters, setFilters] = useState({ status: 'all', level: 'all', tag: 'all' });
   const router = useRouter();
   const isMobile = useIsMobile();
   const [isSheetOpen, setIsSheetOpen] = useState(false);
@@ -175,10 +247,27 @@ export default function LearnPage() {
     sessionStorage.setItem('vocabulary', JSON.stringify(updatedVocabulary));
   };
   
-  const filteredVocabulary = useMemo(() => {
-    if (filterStatus === 'all') return vocabulary;
-    return vocabulary.filter(word => word.status === filterStatus);
-  }, [vocabulary, filterStatus]);
+  const { filteredVocabulary, allTags, allLevels } = useMemo(() => {
+    const tags = new Set<string>();
+    const levels = new Set<string>();
+    vocabulary.forEach(word => {
+        if(word.difficulty) levels.add(word.difficulty);
+        word.tags?.forEach(tag => tags.add(tag));
+    });
+
+    const filtered = vocabulary.filter(word => {
+        const statusMatch = filters.status === 'all' || word.status === filters.status;
+        const levelMatch = filters.level === 'all' || word.difficulty === filters.level;
+        const tagMatch = filters.tag === 'all' || word.tags?.includes(filters.tag);
+        return statusMatch && levelMatch && tagMatch;
+    });
+
+    return { 
+        filteredVocabulary: filtered, 
+        allTags: Array.from(tags).sort(), 
+        allLevels: Array.from(levels).sort((a,b) => a.localeCompare(b, undefined, {numeric: true})) 
+    };
+  }, [vocabulary, filters]);
 
   if (!hydrated) {
     return <div className="flex items-center justify-center h-screen"><p>Loading vocabulary...</p></div>;
@@ -207,12 +296,12 @@ export default function LearnPage() {
 
   const wordsToLearn = vocabulary.filter(w => w.status === 'learning').length;
 
-  const handleFilterChange = (status: string) => {
-    setFilterStatus(status);
+  const handleFilterChange = (type: 'status' | 'level' | 'tag', value: string) => {
+    setFilters(prev => ({ ...prev, [type]: value }));
     if(isMobile) setIsSheetOpen(false);
   }
 
-  const sidebar = <FilterSidebar filterStatus={filterStatus} onFilterChange={handleFilterChange} />;
+  const sidebar = <FilterSidebar filters={filters} onFilterChange={handleFilterChange} allTags={allTags} allLevels={allLevels} />;
 
   return (
     <div className="container mx-auto p-4 md:p-8">
@@ -285,7 +374,7 @@ export default function LearnPage() {
                             ) : (
                                 <TableRow>
                                     <TableCell colSpan={4} className="h-24 text-center">
-                                        No words match the current filter.
+                                        No words match the current filters.
                                     </TableCell>
                                 </TableRow>
                             )}

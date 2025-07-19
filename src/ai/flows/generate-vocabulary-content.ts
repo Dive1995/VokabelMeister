@@ -40,6 +40,7 @@ const GenerateVocabularyContentOutputSchema = z.object({
         meaning: z.string().describe('The English meaning of the related word.'),
     })).optional().describe('An optional list of related words.'),
     difficulty: z.string().describe('The estimated CEFR level of the word (e.g., A1, B2).'),
+    tags: z.array(z.string()).optional().describe('A list of relevant tags or categories for the word (e.g., "food", "travel", "verb").'),
 });
 
 export type GenerateVocabularyContentOutput = z.infer<typeof GenerateVocabularyContentOutputSchema>;
@@ -67,6 +68,7 @@ Here's how to structure your response:
 8.  **Example Sentences**: Create exactly two simple example sentences in German, each with its English translation.
 9.  **Related Words**: List one or two related German words with their English meanings.
 10. **Difficulty**: Estimate the CEFR level (A1, A2, B1, B2, C1, C2) for the word.
+11. **Tags**: Provide a few relevant tags or categories for the word, like "technology", "food", "verb", "adjective".
 
 Here is an example for 'das Netzwerk':
 - word: "das Netzwerk"
@@ -79,6 +81,7 @@ Here is an example for 'das Netzwerk':
 - example_sentences": [{ "de": "Ich habe viele Kontakte in meinem Netzwerk.", "en": "I have many contacts in my network." }, { "de": "Unser Büro braucht ein schnelleres Netzwerk.", "en": "Our office needs a faster network." }]
 - related_words: [{ "word": "das Internet", "meaning": "the internet" }, { "word": "verbinden", "meaning": "to connect" }]
 - difficulty: "A2"
+- tags: ["technology", "nouns", "work"]
 
 
 {{#if knownWords}}

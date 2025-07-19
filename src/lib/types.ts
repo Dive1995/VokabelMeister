@@ -9,4 +9,5 @@ export type VocabularyWord = GenerateVocabularyContentOutput & {
   interval: number;            // in days
   easiness: number;            // SM-2 easiness factor
   repetitions: number;         // Number of times reviewed correctly in a row
+  tags: string[];
 };
