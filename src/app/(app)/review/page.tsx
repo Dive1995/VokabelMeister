@@ -101,12 +101,12 @@ export default function ReviewPage() {
                 setNewWords(parsedWords);
                 setCount(parsedWords.length);
             } else {
-                // If no new words, redirect to home
-                router.push('/');
+                // If no new words, redirect to start
+                router.push('/start');
             }
         } catch (error) {
             console.error("Could not parse new vocabulary from sessionStorage", error);
-            router.push('/');
+            router.push('/start');
         }
         setHydrated(true);
     }, [router]);

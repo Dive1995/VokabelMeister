@@ -2,12 +2,13 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BookOpen, Gamepad2 } from 'lucide-react';
+import { BookOpen, Gamepad2, Sparkles } from 'lucide-react';
 import { Logo } from './logo';
 import { cn } from '@/lib/utils';
 import { Button } from './ui/button';
 
 const navItems = [
+  { href: '/start', icon: Sparkles, label: 'Start' },
   { href: '/learn', icon: BookOpen, label: 'Learn' },
   { href: '/games', icon: Gamepad2, label: 'Games' },
 ];

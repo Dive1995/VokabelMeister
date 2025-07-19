@@ -1,27 +1,144 @@
 'use client';
 
-import { VocabularySetupForm } from '@/components/vocabulary-setup-form';
-import { Logo } from '@/components/logo';
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { ArrowRight, Bot, Gamepad2, BrainCircuit } from 'lucide-react';
+import { Logo } from "@/components/logo";
 
-export default function Home() {
-  return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-8 bg-background">
-      <div className="absolute inset-0 h-full w-full bg-background bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] dark:bg-[radial-gradient(#3f3f46_1px,transparent_1px)] [background-size:16px_16px] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_60%,transparent_100%)]"></div>
-      <div className="w-full max-w-2xl z-10">
-        <div className="text-center mb-12">
-          <div className="flex justify-center mb-4">
-            <Logo size="lg" />
-          </div>
-          <h1 className="text-4xl md:text-5xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-b from-foreground to-foreground/70">
-            VokabelMeister
-          </h1>
-          <p className="mt-4 text-lg text-muted-foreground">
-            Master new vocabulary with AI-powered content generation and interactive games.
-          </p>
+const FeatureCard = ({ icon: Icon, title, description }: { icon: React.ElementType, title: string, description: string }) => (
+    <div className="bg-card p-6 rounded-lg shadow-sm hover:shadow-primary/10 transition-shadow">
+        <div className="flex items-center gap-4 mb-4">
+            <div className="p-2 bg-primary/10 rounded-lg">
+                <Icon className="h-6 w-6 text-primary" />
+            </div>
+            <h3 className="text-xl font-semibold">{title}</h3>
         </div>
+        <p className="text-muted-foreground">{description}</p>
+    </div>
+);
 
-        <VocabularySetupForm />
-      </div>
-    </main>
-  );
+const QuoteCard = ({ quote, author }: { quote: string, author: string }) => (
+    <blockquote className="bg-card p-6 rounded-lg shadow-sm">
+        <p className="italic text-lg">"{quote}"</p>
+        <cite className="block text-right mt-4 not-italic text-muted-foreground">- {author}</cite>
+    </blockquote>
+);
+
+export default function LandingPage() {
+    return (
+        <div className="flex flex-col min-h-screen bg-background">
+            <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+                <div className="container flex h-16 items-center justify-between">
+                    <Link href="/" className="flex items-center gap-2">
+                        <Logo />
+                        <span className="font-bold text-lg">VokabelMeister</span>
+                    </Link>
+                    <nav className="flex items-center gap-4">
+                        <Button asChild variant="ghost">
+                           <Link href="/learn">My Words</Link>
+                        </Button>
+                        <Button asChild>
+                            <Link href="/start">
+                                Get Started <ArrowRight className="ml-2 h-4 w-4" />
+                            </Link>
+                        </Button>
+                    </nav>
+                </div>
+            </header>
+
+            <main className="flex-1">
+                {/* Hero Section */}
+                <section className="container grid lg:grid-cols-2 gap-12 items-center py-20 md:py-32">
+                    <div className="space-y-6">
+                        <h1 className="text-4xl md:text-6xl font-bold tracking-tighter">
+                            Master German Vocabulary <br/> the <span className="text-primary">Smart</span> Way.
+                        </h1>
+                        <p className="text-lg text-muted-foreground max-w-xl">
+                            Stop memorizing, start learning. VokabelMeister uses AI and spaced repetition to create personalized lessons and fun games, making your journey to fluency faster and more effective.
+                        </p>
+                        <div className="flex gap-4">
+                            <Button asChild size="lg">
+                                <Link href="/start">Start Learning for Free</Link>
+                            </Button>
+                            <Button asChild size="lg" variant="outline">
+                                <Link href="#features">Learn More</Link>
+                            </Button>
+                        </div>
+                    </div>
+                     <div className="flex items-center justify-center">
+                        <div className="relative">
+                             <div className="absolute inset-0.5 bg-gradient-to-r from-primary to-accent rounded-full blur-xl opacity-50"></div>
+                             <div className="relative p-8 bg-primary rounded-full">
+                                <Logo size="lg" className="h-48 w-48" />
+                             </div>
+                        </div>
+                    </div>
+                </section>
+                
+                {/* Features Section */}
+                <section id="features" className="py-20 md:py-28 bg-muted/50">
+                    <div className="container">
+                        <div className="text-center max-w-3xl mx-auto mb-12">
+                            <h2 className="text-3xl md:text-4xl font-bold">Everything You Need to Learn German Words</h2>
+                            <p className="text-lg text-muted-foreground mt-4">
+                                VokabelMeister combines cutting-edge AI with proven learning techniques.
+                            </p>
+                        </div>
+                        <div className="grid md:grid-cols-3 gap-8">
+                            <FeatureCard 
+                                icon={Bot}
+                                title="AI-Powered Content"
+                                description="Generate rich, contextual vocabulary cards with mnemonics, example sentences, and breakdowns, all tailored to your learning level."
+                            />
+                            <FeatureCard 
+                                icon={BrainCircuit}
+                                title="Spaced Repetition"
+                                description="Our smart algorithm knows when you're about to forget a word and brings it back for review at the perfect time."
+                            />
+                            <FeatureCard 
+                                icon={Gamepad2}
+                                title="Interactive Games"
+                                description="Solidify your knowledge with fun games like Typing Race and Memory Cards that adapt to your learning progress."
+                            />
+                        </div>
+                    </div>
+                </section>
+
+                {/* Quote Section */}
+                 <section className="py-20 md:py-28">
+                    <div className="container">
+                         <div className="text-center max-w-3xl mx-auto mb-12">
+                            <h2 className="text-3xl md:text-4xl font-bold">Stay Motivated on Your Journey</h2>
+                            <p className="text-lg text-muted-foreground mt-4">
+                                A little inspiration goes a long way. 🚀
+                            </p>
+                        </div>
+                        <div className="grid md:grid-cols-2 gap-8">
+                             <QuoteCard 
+                                quote="The limits of my language mean the limits of my world."
+                                author="Ludwig Wittgenstein"
+                            />
+                            <QuoteCard 
+                                quote="Learning another language is not only learning different words for the same things, but learning another way to think about things."
+                                author="Flora Lewis"
+                            />
+                        </div>
+                    </div>
+                </section>
+
+            </main>
+
+            <footer className="bg-muted/50 border-t">
+                <div className="container flex items-center justify-between py-6">
+                    <div className="flex items-center gap-2">
+                        <Logo size="sm" />
+                        <span className="text-muted-foreground">VokabelMeister</span>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                        Built with ❤️ for language learners.
+                    </p>
+                </div>
+            </footer>
+        </div>
+    );
 }

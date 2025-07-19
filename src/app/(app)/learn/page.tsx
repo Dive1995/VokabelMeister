@@ -279,11 +279,11 @@ export default function LearnPage() {
             <Card className="max-w-lg mx-auto text-center">
                 <CardHeader>
                     <CardTitle>Your Word List is Empty</CardTitle>
-                    <CardDescription>You haven't added any words yet. Go back to the homepage to get started.</CardDescription>
+                    <CardDescription>You haven't added any words yet. Go back to the start page to get started.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <Button asChild>
-                        <Link href="/">
+                        <Link href="/start">
                             <ArrowLeft className="mr-2 h-4 w-4" />
                             Add Your First Words
                         </Link>
@@ -314,7 +314,7 @@ export default function LearnPage() {
             </div>
             <div className="flex gap-2 w-full md:w-auto">
                <Button asChild variant="outline" className="flex-1 md:flex-initial">
-                <Link href="/">
+                <Link href="/start">
                   <ArrowLeft className="mr-2 h-4 w-4" />
                   Add More
                 </Link>

@@ -59,6 +59,7 @@ export function VocabularySetupForm() {
 
 
   async function handleFinalGeneration(words: string[], level: string = 'A1') { // Default level for pasted words
+    setIsLoading(true);
     try {
       // Get existing known words to provide context to the AI
       const storedVocabulary: VocabularyWord[] = JSON.parse(sessionStorage.getItem('vocabulary') || '[]');
@@ -109,7 +110,7 @@ export function VocabularySetupForm() {
 
 
   async function onPasteWordsSubmit(data: z.infer<typeof PasteWordsSchema>) {
-    setIsLoading(true);
+    
     const words = data.wordList.split(',').map(word => word.trim()).filter(Boolean);
     // For pasted words, we can't be sure of the level, so we'll let the AI estimate with a default.
     // A more advanced implementation might run another flow to determine the average level first.
@@ -117,7 +118,7 @@ export function VocabularySetupForm() {
   }
 
   async function onGenerateWordsSubmit(data: z.infer<typeof GenerateWordsSchema>) {
-    setIsLoading(true);
+    
     try {
         const storedVocabulary: VocabularyWord[] = JSON.parse(sessionStorage.getItem('vocabulary') || '[]');
         const knownWords = storedVocabulary.map(w => w.word);
@@ -136,7 +137,7 @@ export function VocabularySetupForm() {
                 title: 'No words generated',
                 description: 'The AI could not generate words for the given criteria. Please try different options.',
             });
-            setIsLoading(false);
+            
         }
     } catch(error) {
         console.error('Failed to generate vocabulary list:', error);
@@ -145,7 +146,7 @@ export function VocabularySetupForm() {
             title: 'Error Generating Words',
             description: 'Failed to generate a new word list. Please try again.',
         });
-        setIsLoading(false);
+        
     }
   }
 
@@ -215,7 +216,7 @@ export function VocabularySetupForm() {
                             max={50}
                             step={1}
                             value={[field.value]}
-                            onValueChange={(value) => field.onChange(value[0])}
+                            onValueValueChange={(value) => field.onChange(value[0])}
                         />
                       </FormControl>
                       <FormMessage />
