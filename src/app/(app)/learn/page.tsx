@@ -4,15 +4,13 @@ import { useEffect, useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import type { VocabularyWord } from '@/lib/types';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Gamepad2, ChevronDown, ListFilter } from 'lucide-react';
+import { ArrowLeft, Gamepad2, ChevronDown, ListFilter, List, BookCheck, Book } from 'lucide-react';
 import Link from 'next/link';
 import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Switch } from '@/components/ui/switch';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { cn } from '@/lib/utils';
-import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -71,30 +69,31 @@ function VocabularyRow({ word, onStatusChange }: { word: VocabularyWord, onStatu
 }
 
 function FilterSidebar({ filterStatus, onFilterChange }: { filterStatus: string, onFilterChange: (status: string) => void }) {
+    const filters = [
+        { id: 'all', label: 'All', icon: List },
+        { id: 'learning', label: 'Learning', icon: Book },
+        { id: 'known', label: 'Known', icon: BookCheck },
+    ];
+    
     return (
-        <Card>
-            <CardContent className="p-4">
-                <div className="space-y-6">
-                    <div>
-                        <h3 className="font-semibold mb-3">Status</h3>
-                        <RadioGroup value={filterStatus} onValueChange={onFilterChange}>
-                            <div className="flex items-center space-x-2">
-                                <RadioGroupItem value="all" id="r-all" />
-                                <Label htmlFor="r-all">All</Label>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                                <RadioGroupItem value="learning" id="r-learning" />
-                                <Label htmlFor="r-learning">Learning</Label>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                                <RadioGroupItem value="known" id="r-known" />
-                                <Label htmlFor="r-known">Known</Label>
-                            </div>
-                        </RadioGroup>
-                    </div>
+        <div className="space-y-4">
+            <div>
+                <h3 className="text-lg font-semibold text-foreground mb-3 px-2">Status</h3>
+                <div className="space-y-1">
+                    {filters.map(filter => (
+                        <Button
+                            key={filter.id}
+                            variant={filterStatus === filter.id ? 'default' : 'ghost'}
+                            className="w-full justify-start text-base"
+                            onClick={() => onFilterChange(filter.id)}
+                        >
+                            <filter.icon className="mr-2 h-5 w-5" />
+                            {filter.label}
+                        </Button>
+                    ))}
                 </div>
-            </CardContent>
-        </Card>
+            </div>
+        </div>
     );
 }
 
