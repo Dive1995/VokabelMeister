@@ -57,7 +57,8 @@ export function TypingRaceGame({ words }: { words: VocabularyWord[] }) {
     
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const typedValue = e.target.value;
-        const currentSentence = shuffledWords[currentWordIndex].exampleSentence;
+        // Use the first example sentence for the race
+        const currentSentence = shuffledWords[currentWordIndex].example_sentences[0].de;
 
         if (typedValue.startsWith(' ')) {
             return;
@@ -147,9 +148,10 @@ export function TypingRaceGame({ words }: { words: VocabularyWord[] }) {
     }
 
     const currentWord = shuffledWords[currentWordIndex];
+    const currentSentence = currentWord.example_sentences[0].de;
     
     const renderSentence = () => {
-        const chars = currentWord.exampleSentence.split('');
+        const chars = currentSentence.split('');
         const inputChars = inputValue.split('');
         return chars.map((char, index) => {
             let className = "";
@@ -175,7 +177,7 @@ export function TypingRaceGame({ words }: { words: VocabularyWord[] }) {
             </CardHeader>
             <CardContent className="text-center py-12">
                 <p className="text-muted-foreground text-lg mb-2">
-                    Type the sentence for: <strong className="text-primary font-semibold">{currentWord.word}</strong> ({currentWord.meaning})
+                    Type the sentence for: <strong className="text-primary font-semibold">{currentWord.word}</strong> ({currentWord.translation})
                 </p>
                 <h2 className="text-3xl font-bold tracking-wide font-mono select-none p-4 bg-muted/50 rounded-lg">
                     {renderSentence()}

@@ -32,7 +32,7 @@ export function MemoryGame({ words }: { words: VocabularyWord[] }) {
     const createGame = useCallback(() => {
         const gameCards: MemoryCardType[] = words.flatMap((word, index) => [
             { id: `${word.id}-word`, pairId: word.id, type: 'word', content: word.word, isFlipped: false, isMatched: false },
-            { id: `${word.id}-meaning`, pairId: word.id, type: 'meaning', content: word.meaning, isFlipped: false, isMatched: false },
+            { id: `${word.id}-meaning`, pairId: word.id, type: 'meaning', content: word.translation, isFlipped: false, isMatched: false },
         ]);
         setCards(shuffleArray(gameCards));
         setFlippedCards([]);

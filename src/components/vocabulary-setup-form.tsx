@@ -71,7 +71,7 @@ export function VocabularySetupForm() {
       const newVocabulary: VocabularyWord[] = results.map((content, index) => ({
         ...content,
         id: `${content.word}-${Date.now()}-${index}`, // More robust ID
-        status: 'new',
+        status: 'learning',
       }));
 
       // Combine new words with existing ones, avoiding duplicates
@@ -159,7 +159,7 @@ export function VocabularySetupForm() {
                         <FormLabel>Your Words</FormLabel>
                         <FormControl>
                             <Textarea
-                            placeholder="e.g., Apfel, Haus, Freundschaft, schnell..."
+                            placeholder="e.g., der Apfel, das Haus, die Freundschaft, schnell..."
                             className="min-h-[120px] resize-y"
                             {...field}
                             />

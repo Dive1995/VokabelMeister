@@ -6,14 +6,14 @@ import type { VocabularyWord } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Gamepad2, ChevronDown, ListFilter, List, BookCheck, Book } from 'lucide-react';
 import Link from 'next/link';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Switch } from '@/components/ui/switch';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { cn } from '@/lib/utils';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { useIsMobile } from '@/hooks/use-mobile';
-
+import { Badge } from '@/components/ui/badge';
 
 function VocabularyRow({ word, onStatusChange }: { word: VocabularyWord, onStatusChange: (id: string, status: 'learning' | 'known') => void }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -29,7 +29,7 @@ function VocabularyRow({ word, onStatusChange }: { word: VocabularyWord, onStatu
           </CollapsibleTrigger>
         </TableCell>
         <TableCell className="font-medium text-lg">{word.word}</TableCell>
-        <TableCell className="text-muted-foreground italic">{word.meaning}</TableCell>
+        <TableCell className="text-muted-foreground italic">{word.translation}</TableCell>
         <TableCell className="text-right w-[200px]">
           <div className="flex items-center justify-end gap-3">
              <span className={cn("text-sm", word.status === 'learning' ? 'text-accent font-semibold' : 'text-muted-foreground')}>
@@ -50,14 +50,62 @@ function VocabularyRow({ word, onStatusChange }: { word: VocabularyWord, onStatu
           <TableRow>
             <TableCell colSpan={4} className="p-0">
                 <div className="p-6 bg-muted/50">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <h4 className="font-semibold mb-2">Example Sentence</h4>
-                            <p className="text-muted-foreground">{word.exampleSentence}</p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div className="space-y-4">
+                            <div>
+                                <h4 className="font-semibold mb-1">Definition</h4>
+                                <p className="text-muted-foreground">{word.simple_definition}</p>
+                            </div>
+                            <div>
+                                <h4 className="font-semibold mb-2">Mnemonic</h4>
+                                <p className="text-muted-foreground">{word.mnemonic.story} <span className="text-lg">{word.mnemonic.emoji}</span></p>
+                            </div>
                         </div>
-                        <div>
-                            <h4 className="font-semibold mb-2">Mnemonic</h4>
-                            <p className="text-muted-foreground">{word.mnemonic}</p>
+                        <div className="space-y-4">
+                            <div>
+                                <h4 className="font-semibold mb-2">Example Sentences</h4>
+                                <ul className="space-y-2 text-muted-foreground">
+                                {word.example_sentences.map((ex, i) => (
+                                    <li key={i}>
+                                        <p>{ex.de}</p>
+                                        <p className="italic text-sm">{ex.en}</p>
+                                    </li>
+                                ))}
+                                </ul>
+                            </div>
+                        </div>
+                         <div className="space-y-4">
+                             <div>
+                                <h4 className="font-semibold mb-2">Details</h4>
+                                <div className="flex flex-wrap gap-2">
+                                    <Badge variant="outline">Level: {word.difficulty}</Badge>
+                                    {word.plural && <Badge variant="outline">Plural: {word.plural}</Badge>}
+                                </div>
+                            </div>
+                            {word.breakdown && word.breakdown.length > 0 && (
+                                <div>
+                                    <h4 className="font-semibold mb-2">Word Breakdown</h4>
+                                    <div className="flex flex-wrap gap-2">
+                                        {word.breakdown.map((part, i) => (
+                                            <div key={i} className="flex items-center gap-2">
+                                                <Badge>{part.part}</Badge>
+                                                <span className="text-muted-foreground text-sm">({part.meaning})</span>
+                                                {i < word.breakdown!.length - 1 && <span className="text-muted-foreground">+</span>}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                            {word.related_words && word.related_words.length > 0 && (
+                                <div>
+                                    <h4 className="font-semibold mb-2">Related Words</h4>
+                                     <div className="flex flex-wrap gap-2">
+                                        {word.related_words.map((related, i) => (
+                                            <Badge key={i} variant="secondary">{related.word} ({related.meaning})</Badge>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
