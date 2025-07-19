@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -10,6 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { BookCheck, Book, ArrowRight, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
+import { updateSRSData } from '@/lib/srs';
 
 function VocabularyReviewCard({ word }: { word: VocabularyWord }) {
     return (
@@ -122,7 +124,12 @@ export default function ReviewPage() {
         const wordToUpdate = newWords.find(w => w.id === wordId);
         if (!wordToUpdate) return;
         
-        const updatedWord: VocabularyWord = { ...wordToUpdate, status };
+        let updatedWord: VocabularyWord = { ...wordToUpdate, status };
+        
+        // If user says they know the word, we can give it an initial successful review
+        if (status === 'known') {
+            updatedWord = updateSRSData(updatedWord, 5); // 5 for perfect recall
+        }
 
         try {
             const mainVocabulary: VocabularyWord[] = JSON.parse(sessionStorage.getItem('vocabulary') || '[]');
@@ -176,6 +183,8 @@ export default function ReviewPage() {
         );
     }
     
+    const currentWord = newWords[current - 1];
+    
     return (
         <div className="container mx-auto p-4 md:p-8">
             <div className="text-center mb-8">
@@ -197,32 +206,34 @@ export default function ReviewPage() {
             </Carousel>
 
             <div className="flex flex-col items-center justify-center gap-6 mt-8">
-                <div className="flex gap-4">
-                    <Button 
-                        variant="secondary" 
-                        size="lg"
-                        onClick={() => handleStatusChange(newWords[current - 1].id, 'known')}
-                    >
-                        <BookCheck className="mr-2" />
-                        I know this
-                    </Button>
-                    <Button 
-                        variant="default" 
-                        size="lg"
-                        onClick={() => handleStatusChange(newWords[current - 1].id, 'learning')}
-                    >
-                         <Sparkles className="mr-2" />
-                        Learn this word
-                    </Button>
-                </div>
+                {currentWord && (
+                    <div className="flex gap-4">
+                        <Button 
+                            variant="secondary" 
+                            size="lg"
+                            onClick={() => handleStatusChange(currentWord.id, 'known')}
+                        >
+                            <BookCheck className="mr-2" />
+                            I know this
+                        </Button>
+                        <Button 
+                            variant="default" 
+                            size="lg"
+                            onClick={() => handleStatusChange(currentWord.id, 'learning')}
+                        >
+                            <Sparkles className="mr-2" />
+                            Learn this word
+                        </Button>
+                    </div>
+                )}
                  <div className="text-center text-sm text-muted-foreground">
                     Word {current} of {count}
                 </div>
             </div>
              <div className="text-center mt-8">
                 <Button asChild variant="link">
-                    <Link href="/learn">
-                        Skip Review & Go to Full List <ArrowRight className="ml-2 h-4 w-4"/>
+                    <Link href="/games">
+                        Skip Review & Go Play Games <ArrowRight className="ml-2 h-4 w-4"/>
                     </Link>
                 </Button>
             </div>

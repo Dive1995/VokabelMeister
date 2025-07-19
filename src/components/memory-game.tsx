@@ -1,3 +1,4 @@
+
 'use client'
 
 import type { VocabularyWord } from "@/lib/types";
@@ -7,6 +8,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Award, Gamepad, Repeat, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { updateSRSData } from "@/lib/srs";
 
 type MemoryCardType = {
   id: string;
@@ -28,9 +30,10 @@ export function MemoryGame({ words }: { words: VocabularyWord[] }) {
     const [isFinished, setIsFinished] = useState(false);
     const [startTime, setStartTime] = useState<Date | null>(null);
     const [timeTaken, setTimeTaken] = useState(0);
+    const [matchedPairs, setMatchedPairs] = useState(0);
 
     const createGame = useCallback(() => {
-        const gameCards: MemoryCardType[] = words.flatMap((word, index) => [
+        const gameCards: MemoryCardType[] = words.flatMap((word) => [
             { id: `${word.id}-word`, pairId: word.id, type: 'word', content: word.word, isFlipped: false, isMatched: false },
             { id: `${word.id}-meaning`, pairId: word.id, type: 'meaning', content: word.translation, isFlipped: false, isMatched: false },
         ]);
@@ -38,6 +41,7 @@ export function MemoryGame({ words }: { words: VocabularyWord[] }) {
         setFlippedCards([]);
         setMoves(0);
         setIsFinished(false);
+        setMatchedPairs(0);
         setStartTime(new Date());
         setTimeTaken(0);
     }, [words]);
@@ -45,6 +49,32 @@ export function MemoryGame({ words }: { words: VocabularyWord[] }) {
     useEffect(() => {
         createGame();
     }, [createGame]);
+    
+    const finishGame = useCallback(() => {
+        setIsFinished(true);
+        if (startTime) {
+            const endTime = new Date();
+            setTimeTaken(Math.round((endTime.getTime() - startTime.getTime()) / 1000));
+        }
+
+        try {
+            const mainVocabulary: VocabularyWord[] = JSON.parse(sessionStorage.getItem('vocabulary') || '[]');
+            // A simple metric: if moves are less than 2x the number of pairs, it's a good recall
+            const quality = moves < words.length * 2 ? 5 : 3;
+            
+            words.forEach(word => {
+                const wordIndex = mainVocabulary.findIndex(w => w.id === word.id);
+                if (wordIndex > -1) {
+                    mainVocabulary[wordIndex] = updateSRSData(mainVocabulary[wordIndex], quality);
+                }
+            });
+
+            sessionStorage.setItem('vocabulary', JSON.stringify(mainVocabulary));
+        } catch (error) {
+             console.error("Failed to update vocabulary with SRS data.", error);
+        }
+
+    }, [startTime, moves, words]);
 
     useEffect(() => {
         if (flippedCards.length === 2) {
@@ -60,6 +90,7 @@ export function MemoryGame({ words }: { words: VocabularyWord[] }) {
                     )
                 );
                 setFlippedCards([]);
+                setMatchedPairs(prev => prev + 1);
             } else {
                 // No match
                 setTimeout(() => {
@@ -76,18 +107,13 @@ export function MemoryGame({ words }: { words: VocabularyWord[] }) {
     }, [flippedCards, cards]);
 
     useEffect(() => {
-        const allMatched = cards.length > 0 && cards.every(card => card.isMatched);
-        if (allMatched) {
-            setIsFinished(true);
-            if (startTime) {
-                const endTime = new Date();
-                setTimeTaken(Math.round((endTime.getTime() - startTime.getTime()) / 1000));
-            }
+        if (words.length > 0 && matchedPairs === words.length) {
+           finishGame();
         }
-    }, [cards, startTime]);
+    }, [matchedPairs, words.length, finishGame]);
 
     const handleCardClick = (index: number) => {
-        if (flippedCards.length === 2 || cards[index].isFlipped || cards[index].isMatched) {
+        if (isFinished || flippedCards.length === 2 || cards[index].isFlipped || cards[index].isMatched) {
             return;
         }
 
@@ -131,6 +157,7 @@ export function MemoryGame({ words }: { words: VocabularyWord[] }) {
         <div className="max-w-3xl mx-auto">
             <div className="flex justify-between items-center mb-4 px-2">
                 <h3 className="text-lg font-semibold">Moves: <span className="text-primary font-bold">{moves}</span></h3>
+                <h3 className="text-lg font-semibold">Matched: <span className="text-primary font-bold">{matchedPairs} / {words.length}</span></h3>
             </div>
             <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4">
                 {cards.map((card, index) => (

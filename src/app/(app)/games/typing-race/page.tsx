@@ -1,3 +1,4 @@
+
 'use client';
 
 import { TypingRaceGame } from '@/components/typing-race-game';
@@ -7,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { BookOpen } from 'lucide-react';
+import { getWordsForGame } from '@/lib/srs';
 
 export default function TypingRacePage() {
     const [words, setWords] = useState<VocabularyWord[]>([]);
@@ -15,8 +17,8 @@ export default function TypingRacePage() {
     useEffect(() => {
         try {
             const storedVocabulary: VocabularyWord[] = JSON.parse(sessionStorage.getItem('vocabulary') || '[]');
-            const wordsToLearn = storedVocabulary.filter(w => w.status === 'learning');
-            setWords(wordsToLearn);
+            const gameWords = getWordsForGame(storedVocabulary, 20);
+            setWords(gameWords);
         } catch (error) {
             console.error("Could not parse vocabulary from sessionStorage", error);
         }
@@ -33,7 +35,7 @@ export default function TypingRacePage() {
                 <Card className="max-w-lg mx-auto text-center">
                     <CardHeader>
                         <CardTitle>Not Enough Words</CardTitle>
-                        <CardDescription>You need at least one word in your "learning" list to play Typing Race.</CardDescription>
+                        <CardDescription>You need at least one word in your "learning" list or due for review to play Typing Race.</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <Button asChild>

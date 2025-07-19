@@ -1,3 +1,4 @@
+
 'use client'
 
 import type { VocabularyWord } from "@/lib/types";
@@ -9,6 +10,7 @@ import { Progress } from "./ui/progress";
 import { Award, Gamepad, Repeat } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { updateSRSData } from "@/lib/srs";
 
 type GameState = 'waiting' | 'playing' | 'finished';
 const GAME_DURATION = 60; // 60 seconds
@@ -21,6 +23,7 @@ export function TypingRaceGame({ words }: { words: VocabularyWord[] }) {
     const [inputValue, setInputValue] = useState('');
     const [shuffledWords, setShuffledWords] = useState<VocabularyWord[]>([]);
     const [feedback, setFeedback] = useState<'correct' | 'incorrect' | null>(null);
+    const [practicedWords, setPracticedWords] = useState<Map<string, { correct: number; incorrect: number }>>(new Map());
 
     const timerRef = useRef<NodeJS.Timeout | null>(null);
     const inputRef = useRef<HTMLInputElement>(null);
@@ -33,6 +36,39 @@ export function TypingRaceGame({ words }: { words: VocabularyWord[] }) {
         shuffleWords();
     }, [shuffleWords]);
 
+    const handleWordResult = (wordId: string, correct: boolean) => {
+        setPracticedWords(prev => {
+            const newMap = new Map(prev);
+            const stats = newMap.get(wordId) || { correct: 0, incorrect: 0 };
+            if (correct) {
+                stats.correct += 1;
+            } else {
+                stats.incorrect += 1;
+            }
+            newMap.set(wordId, stats);
+            return newMap;
+        });
+    }
+
+    const finishGame = () => {
+        setGameState('finished');
+        if (timerRef.current) clearInterval(timerRef.current);
+
+        try {
+            const mainVocabulary: VocabularyWord[] = JSON.parse(sessionStorage.getItem('vocabulary') || '[]');
+            practicedWords.forEach((stats, wordId) => {
+                const wordIndex = mainVocabulary.findIndex(w => w.id === wordId);
+                if (wordIndex > -1) {
+                    const quality = stats.incorrect > 0 ? 2 : 5; // Simple quality score
+                    mainVocabulary[wordIndex] = updateSRSData(mainVocabulary[wordIndex], quality);
+                }
+            });
+            sessionStorage.setItem('vocabulary', JSON.stringify(mainVocabulary));
+        } catch (error) {
+            console.error("Failed to update vocabulary with SRS data.", error);
+        }
+    }
+
 
     useEffect(() => {
         if (gameState === 'playing') {
@@ -40,8 +76,7 @@ export function TypingRaceGame({ words }: { words: VocabularyWord[] }) {
             timerRef.current = setInterval(() => {
                 setTimeLeft(prev => {
                     if (prev <= 1) {
-                        clearInterval(timerRef.current!);
-                        setGameState('finished');
+                        finishGame();
                         return 0;
                     }
                     return prev - 1;
@@ -57,7 +92,6 @@ export function TypingRaceGame({ words }: { words: VocabularyWord[] }) {
     
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const typedValue = e.target.value;
-        // Use the first example sentence for the race
         const currentSentence = shuffledWords[currentWordIndex].example_sentences[0].de;
 
         if (typedValue.startsWith(' ')) {
@@ -69,15 +103,22 @@ export function TypingRaceGame({ words }: { words: VocabularyWord[] }) {
         if (typedValue.trim() === currentSentence) {
             setScore(prev => prev + 1);
             setFeedback('correct');
+            handleWordResult(shuffledWords[currentWordIndex].id, true);
             setTimeout(() => {
                 setInputValue('');
                 setCurrentWordIndex(prev => (prev + 1) % shuffledWords.length);
                 setFeedback(null);
             }, 200);
-        } else if (currentSentence.startsWith(typedValue)) {
-            setFeedback(null);
+        } else if (!currentSentence.startsWith(typedValue.trim())) {
+             if(typedValue.length > 0) {
+                setFeedback('incorrect');
+                // Only penalize once per word attempt
+                if(!practicedWords.has(shuffledWords[currentWordIndex].id)){
+                     handleWordResult(shuffledWords[currentWordIndex].id, false);
+                }
+             }
         } else {
-            if(typedValue.length > 0) setFeedback('incorrect');
+             setFeedback(null);
         }
     };
 
@@ -87,16 +128,8 @@ export function TypingRaceGame({ words }: { words: VocabularyWord[] }) {
         setTimeLeft(GAME_DURATION);
         setCurrentWordIndex(0);
         setInputValue('');
+        setPracticedWords(new Map());
         shuffleWords();
-    };
-
-    const restartGame = () => {
-        setGameState('waiting');
-        setScore(0);
-        setTimeLeft(GAME_DURATION);
-        setCurrentWordIndex(0);
-        setInputValue('');
-        setFeedback(null);
     };
 
     if (shuffledWords.length === 0) {
@@ -132,7 +165,7 @@ export function TypingRaceGame({ words }: { words: VocabularyWord[] }) {
                     <p className="text-3xl font-bold">{sentencesPerMin} <span className="text-lg font-normal text-muted-foreground">sentences per minute</span></p>
                 </CardContent>
                 <CardFooter className="flex-col sm:flex-row gap-2">
-                    <Button onClick={restartGame} className="w-full">
+                    <Button onClick={startGame} className="w-full">
                         <Repeat className="mr-2" />
                         Play Again
                     </Button>

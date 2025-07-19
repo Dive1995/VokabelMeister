@@ -1,3 +1,4 @@
+
 'use client';
 
 import { MemoryGame } from '@/components/memory-game';
@@ -7,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { BookOpen } from 'lucide-react';
+import { getWordsForGame } from '@/lib/srs';
 
 export default function MemoryCardsPage() {
     const [words, setWords] = useState<VocabularyWord[]>([]);
@@ -15,8 +17,9 @@ export default function MemoryCardsPage() {
     useEffect(() => {
         try {
             const storedVocabulary: VocabularyWord[] = JSON.parse(sessionStorage.getItem('vocabulary') || '[]');
-            const wordsToLearn = storedVocabulary.filter(w => w.status === 'learning');
-            setWords(wordsToLearn);
+            // Memory game needs pairs, so we'll take up to 10 words (for 20 cards)
+            const gameWords = getWordsForGame(storedVocabulary, 10);
+            setWords(gameWords);
         } catch (error) {
             console.error("Could not parse vocabulary from sessionStorage", error);
         }
@@ -33,7 +36,7 @@ export default function MemoryCardsPage() {
                 <Card className="max-w-lg mx-auto text-center">
                     <CardHeader>
                         <CardTitle>Not Enough Words</CardTitle>
-                        <CardDescription>You need at least two words in your "learning" list to play Memory Cards.</CardDescription>
+                        <CardDescription>You need at least two words in your "learning" list or due for review to play Memory Cards.</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <Button asChild>

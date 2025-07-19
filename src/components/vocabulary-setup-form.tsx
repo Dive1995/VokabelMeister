@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -19,6 +20,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from './ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Slider } from './ui/slider';
+import { initializeSRSFields } from '@/lib/srs';
 
 
 const PasteWordsSchema = z.object({
@@ -72,11 +74,14 @@ export function VocabularySetupForm() {
 
       const newVocabulary: VocabularyWord[] = results
         .filter(content => !existingWords.has(content.word)) // Filter out words that already exist in the main list
-        .map((content, index) => ({
+        .map((content, index) => {
+          const partialWord = {
             ...content,
             id: `${content.word}-${Date.now()}-${index}`,
-            status: 'new', // Set initial status to 'new' for the review screen
-      }));
+            status: 'new' as const,
+          };
+          return initializeSRSFields(partialWord);
+        });
 
       if (newVocabulary.length === 0) {
         toast({
