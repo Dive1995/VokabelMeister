@@ -13,6 +13,7 @@ import {z} from 'genkit';
 
 const GenerateVocabularyContentInputSchema = z.object({
   newWord: z.string().describe('The new German word to learn.'),
+  level: z.string().describe('The proficiency level (e.g., A1, B2) for which to generate content.'),
   knownWords: z.array(z.string()).optional().describe('List of already known words.'),
 });
 export type GenerateVocabularyContentInput = z.infer<typeof GenerateVocabularyContentInputSchema>;
@@ -39,7 +40,7 @@ const GenerateVocabularyContentOutputSchema = z.object({
         word: z.string().describe('A related German word.'),
         meaning: z.string().describe('The English meaning of the related word.'),
     })).optional().describe('An optional list of related words.'),
-    difficulty: z.string().describe('The estimated CEFR level of the word (e.g., A1, B2).'),
+    difficulty: z.string().describe('The estimated CEFR level of the word (e.g., A1, B2). This MUST match the requested level.'),
     tags: z.array(z.string()).optional().describe('A list of relevant tags or categories for the word (e.g., "food", "travel", "verb").'),
 });
 
@@ -55,7 +56,7 @@ const prompt = ai.definePrompt({
   output: {schema: GenerateVocabularyContentOutputSchema},
   prompt: `You are a friendly and engaging language tutor for a beginner learning German. Your tone should be casual and fun, like talking to a friend. Use emojis or light humor if it helps make the explanation more memorable.
 
-Your task is to provide a detailed explanation for the German word: {{{newWord}}}
+Your task is to provide a detailed explanation for the German word: {{{newWord}}}, tailored for a learner at the {{{level}}} level.
 
 Here's how to structure your response:
 1.  **Word with Article**: For the 'word' field, you MUST include the definite article (der, die, or das) if it's a noun. For example, for "Netzwerk", you'd use "das Netzwerk".
@@ -63,14 +64,14 @@ Here's how to structure your response:
 3.  **Gender**: If a noun, provide the gender ('der', 'die', or 'das'). Otherwise, null.
 4.  **Plural**: If a noun, provide the plural form with its article (e.g., "die Netzwerke"). Otherwise, null.
 5.  **Breakdown**: If the word can be broken down into parts (prefix, root, suffix), provide them and their meanings.
-6.  **Simple Definition**: Explain the meaning of the German word in a simple way in English.
+6.  **Simple Definition**: Explain the meaning of the German word in a simple way in English, suitable for a {{{level}}} learner.
 7.  **Mnemonic**: Provide a fun and memorable story/scenario and some emojis to help the learner remember the word.
-8.  **Example Sentences**: Create exactly two simple example sentences in German, each with its English translation.
+8.  **Example Sentences**: Create exactly two simple example sentences in German, each with its English translation. The complexity of the sentences must be appropriate for the {{{level}}} level.
 9.  **Related Words**: List one or two related German words with their English meanings.
-10. **Difficulty**: Estimate the CEFR level (A1, A2, B1, B2, C1, C2) for the word.
+10. **Difficulty**: This field MUST be set to the requested proficiency level: {{{level}}}.
 11. **Tags**: Provide a few relevant tags or categories for the word, like "technology", "food", "verb", "adjective".
 
-Here is an example for 'das Netzwerk':
+Here is an example for 'das Netzwerk' at level 'A2':
 - word: "das Netzwerk"
 - translation: "the network"
 - gender: "das"
@@ -89,7 +90,7 @@ Known words: {{#each knownWords}}{{{this}}}{{#unless @last}}, {{/unless}}{{/each
 Try to use different words for the example sentence if possible.
 {{/if}}
 
-Now, please generate the content for the following word following the schema precisely.
+Now, please generate the content for the following word, ensuring all content is appropriate for level {{{level}}} and follows the schema precisely.
 Word: {{{newWord}}}
 `,
 });

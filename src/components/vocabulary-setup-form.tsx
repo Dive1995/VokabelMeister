@@ -58,14 +58,14 @@ export function VocabularySetupForm() {
   });
 
 
-  async function handleFinalGeneration(words: string[]) {
+  async function handleFinalGeneration(words: string[], level: string = 'A1') { // Default level for pasted words
     try {
       // Get existing known words to provide context to the AI
       const storedVocabulary: VocabularyWord[] = JSON.parse(sessionStorage.getItem('vocabulary') || '[]');
       const knownWords = storedVocabulary.filter(w => w.status === 'known').map(w => w.word);
 
       const generatedContentPromises = words.map(word =>
-        generateVocabularyContent({ newWord: word, knownWords })
+        generateVocabularyContent({ newWord: word, level, knownWords })
       );
 
       const results = await Promise.all(generatedContentPromises);
@@ -111,7 +111,9 @@ export function VocabularySetupForm() {
   async function onPasteWordsSubmit(data: z.infer<typeof PasteWordsSchema>) {
     setIsLoading(true);
     const words = data.wordList.split(',').map(word => word.trim()).filter(Boolean);
-    await handleFinalGeneration(words);
+    // For pasted words, we can't be sure of the level, so we'll let the AI estimate with a default.
+    // A more advanced implementation might run another flow to determine the average level first.
+    await handleFinalGeneration(words, 'A2'); 
   }
 
   async function onGenerateWordsSubmit(data: z.infer<typeof GenerateWordsSchema>) {
@@ -127,7 +129,7 @@ export function VocabularySetupForm() {
             knownWords,
         });
         if (response.words && response.words.length > 0) {
-            await handleFinalGeneration(response.words);
+            await handleFinalGeneration(response.words, data.level);
         } else {
             toast({
                 variant: 'destructive',
