@@ -1,7 +1,7 @@
 'use server';
 
 /**
- * @fileOverview A vocabulary list generation AI agent.
+ * @fileOverview A German vocabulary list generation AI agent.
  *
  * - generateVocabularyList - A function that handles the vocabulary list generation process.
  * - GenerateVocabularyListInput - The input type for the generateVocabularyList function.
@@ -32,9 +32,9 @@ const prompt = ai.definePrompt({
   name: 'generateVocabularyListPrompt',
   input: {schema: GenerateVocabularyListInputSchema},
   output: {schema: GenerateVocabularyListOutputSchema},
-  prompt: `You are a helpful assistant that generates a list of vocabulary words for a language learner.
+  prompt: `You are a helpful assistant that generates a list of German vocabulary words for a language learner.
 
-  Generate {{count}} unique vocabulary words for a learner at the {{level}} proficiency level in the category of "{{category}}".
+  Generate {{count}} unique German vocabulary words for a learner at the {{level}} proficiency level in the category of "{{category}}".
 
   {{#if knownWords}}
   Avoid generating the following words, as the user already knows them:
