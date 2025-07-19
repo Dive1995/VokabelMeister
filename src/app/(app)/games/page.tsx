@@ -19,10 +19,10 @@ const games: Game[] = [
     },
     {
         title: "Memory Cards",
-        description: "Match words with their meanings. Coming soon!",
+        description: "Match words with their meanings.",
         icon: "Copy",
-        href: "#",
-        disabled: true,
+        href: "/games/memory-cards",
+        disabled: false,
     },
     {
         title: "Quick-fire Quiz",
