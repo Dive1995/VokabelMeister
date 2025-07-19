@@ -36,6 +36,8 @@ const prompt = ai.definePrompt({
 
   Generate {{count}} unique German vocabulary words for a learner at the {{level}} proficiency level in the category of "{{category}}".
 
+  The list should include a good mix of word types, such as nouns, verbs, adjectives, and adverbs, as appropriate for the given category and level.
+
   IMPORTANT: For all nouns you generate, you MUST include their definite article (der, die, or das). For example: "der Tisch", "die Lampe", "das Auto".
 
   {{#if knownWords}}
