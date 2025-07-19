@@ -26,6 +26,13 @@ export default function LearnPage() {
     setHydrated(true);
   }, []);
 
+  useEffect(() => {
+    if (hydrated && vocabulary.length === 0) {
+      router.push('/');
+    }
+  }, [hydrated, vocabulary, router]);
+
+
   const updateWordStatus = (id: string, status: 'learning' | 'known') => {
     const updatedVocabulary = vocabulary.map((word) =>
       word.id === id ? { ...word, status } : word
@@ -47,11 +54,7 @@ export default function LearnPage() {
                     <CardDescription>You haven't generated any words to learn yet.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <p className="mb-4">Go back to the homepage to start your learning journey.</p>
-                    <Button onClick={() => router.push('/')}>
-                        <ArrowLeft className="mr-2 h-4 w-4" />
-                        Back to Home
-                    </Button>
+                    <p className="mb-4">Redirecting you to the homepage to start your learning journey.</p>
                 </CardContent>
             </Card>
         </div>
