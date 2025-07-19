@@ -67,21 +67,29 @@ export function VocabularySetupForm() {
       );
 
       const results = await Promise.all(generatedContentPromises);
+      
+      const existingWords = new Set(storedVocabulary.map(w => w.word));
 
-      const newVocabulary: VocabularyWord[] = results.map((content, index) => ({
-        ...content,
-        id: `${content.word}-${Date.now()}-${index}`, // More robust ID
-        status: 'learning',
+      const newVocabulary: VocabularyWord[] = results
+        .filter(content => !existingWords.has(content.word)) // Filter out words that already exist in the main list
+        .map((content, index) => ({
+            ...content,
+            id: `${content.word}-${Date.now()}-${index}`,
+            status: 'new', // Set initial status to 'new' for the review screen
       }));
 
-      // Combine new words with existing ones, avoiding duplicates
-      const existingWords = new Set(storedVocabulary.map(w => w.word));
-      const uniqueNewVocabulary = newVocabulary.filter(w => !existingWords.has(w.word));
-      const finalVocabulary = [...storedVocabulary, ...uniqueNewVocabulary];
+      if (newVocabulary.length === 0) {
+        toast({
+            title: 'No New Words Generated',
+            description: 'All generated words are already in your list. Try a different category or level.',
+        });
+        setIsLoading(false);
+        return;
+      }
 
+      sessionStorage.setItem('newlyGeneratedVocabulary', JSON.stringify(newVocabulary));
+      router.push('/review');
 
-      sessionStorage.setItem('vocabulary', JSON.stringify(finalVocabulary));
-      router.push('/learn');
     } catch (error) {
       console.error('Failed to generate vocabulary content:', error);
       toast({

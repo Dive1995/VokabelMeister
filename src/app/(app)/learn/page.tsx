@@ -90,7 +90,7 @@ function VocabularyRow({ word, onStatusChange }: { word: VocabularyWord, onStatu
                                             <div key={i} className="flex items-center gap-2">
                                                 <Badge>{part.part}</Badge>
                                                 <span className="text-muted-foreground text-sm">({part.meaning})</span>
-                                                {i < word.breakdown!.length - 1 && <span className="text-muted-foreground">+</span>}
+                                                {i < word.breakdown.length - 1 && <span className="text-muted-foreground">+</span>}
                                             </div>
                                         ))}
                                     </div>
@@ -160,20 +160,12 @@ export default function LearnPage() {
       const storedVocabulary = sessionStorage.getItem('vocabulary');
       if (storedVocabulary) {
         setVocabulary(JSON.parse(storedVocabulary));
-      } else {
-        router.push('/');
       }
     } catch (error) {
       console.error("Could not parse vocabulary from sessionStorage", error);
     }
     setHydrated(true);
-  }, [router]);
-
-  useEffect(() => {
-    if (hydrated && vocabulary.length === 0) {
-      router.push('/');
-    }
-  }, [hydrated, vocabulary, router]);
+  }, []);
 
   const updateWordStatus = (id: string, status: 'learning' | 'known') => {
     const updatedVocabulary = vocabulary.map((word) =>
@@ -193,7 +185,24 @@ export default function LearnPage() {
   }
 
   if (vocabulary.length === 0) {
-    return null; // Redirecting in useEffect
+      return (
+         <div className="container mx-auto p-4 md:p-8 flex items-center justify-center min-h-[calc(100vh-10rem)]">
+            <Card className="max-w-lg mx-auto text-center">
+                <CardHeader>
+                    <CardTitle>Your Word List is Empty</CardTitle>
+                    <CardDescription>You haven't added any words yet. Go back to the homepage to get started.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <Button asChild>
+                        <Link href="/">
+                            <ArrowLeft className="mr-2 h-4 w-4" />
+                            Add Your First Words
+                        </Link>
+                    </Button>
+                </CardContent>
+            </Card>
+        </div>
+      )
   }
 
   const wordsToLearn = vocabulary.filter(w => w.status === 'learning').length;
