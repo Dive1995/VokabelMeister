@@ -9,6 +9,7 @@ import { Carousel, CarouselContent, CarouselItem, type CarouselApi } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { BookCheck, Book, ArrowRight, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import Link from 'next/link';
 
 function VocabularyReviewCard({ word }: { word: VocabularyWord }) {
     return (
