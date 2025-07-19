@@ -20,7 +20,7 @@ const GenerateVocabularyListInputSchema = z.object({
 export type GenerateVocabularyListInput = z.infer<typeof GenerateVocabularyListInputSchema>;
 
 const GenerateVocabularyListOutputSchema = z.object({
-  words: z.array(z.string()).describe('The generated list of words.'),
+  words: z.array(z.string()).describe('The generated list of words. For nouns, the article (der, die, das) MUST be included.'),
 });
 export type GenerateVocabularyListOutput = z.infer<typeof GenerateVocabularyListOutputSchema>;
 
@@ -35,6 +35,8 @@ const prompt = ai.definePrompt({
   prompt: `You are a helpful assistant that generates a list of German vocabulary words for a language learner.
 
   Generate {{count}} unique German vocabulary words for a learner at the {{level}} proficiency level in the category of "{{category}}".
+
+  IMPORTANT: For all nouns you generate, you MUST include their definite article (der, die, or das). For example: "der Tisch", "die Lampe", "das Auto".
 
   {{#if knownWords}}
   Avoid generating the following words, as the user already knows them:

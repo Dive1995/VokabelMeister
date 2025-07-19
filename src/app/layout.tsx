@@ -17,7 +17,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${inter.variable}`}>
-      <body className="font-sans antialiased">
+      <body>
         {children}
         <Toaster />
       </body>

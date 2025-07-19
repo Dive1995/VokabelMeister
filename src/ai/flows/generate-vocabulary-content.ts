@@ -18,7 +18,7 @@ const GenerateVocabularyContentInputSchema = z.object({
 export type GenerateVocabularyContentInput = z.infer<typeof GenerateVocabularyContentInputSchema>;
 
 const GenerateVocabularyContentOutputSchema = z.object({
-  word: z.string().describe('The German word.'),
+  word: z.string().describe('The German word. If it is a noun, it MUST include the article (e.g., "der Apfel", "die Frau").'),
   meaning: z.string().describe('The English meaning of the word.'),
   exampleSentence: z.string().describe('An example German sentence using the word.'),
   mnemonic: z.string().describe('A mnemonic to help remember the word. The mnemonic should be in English but relate to the German word.'),
@@ -36,9 +36,10 @@ const prompt = ai.definePrompt({
   prompt: `You are a helpful assistant that generates content for learning German vocabulary.
 
   For the given German word, you will generate:
-  1. The English meaning of the word.
-  2. An example sentence in German that uses the word in context.
-  3. A creative and easy-to-remember mnemonic in English to help remember the word.
+  1. The German word. If it is a noun, you MUST include the definite article (der, die, or das) with it. For example, if the word is "Apfel", the output should be "der Apfel".
+  2. The English meaning of the word.
+  3. An example sentence in German that uses the word in context.
+  4. A creative and easy-to-remember mnemonic in English to help remember the word.
 
   Word: {{{newWord}}}
 
