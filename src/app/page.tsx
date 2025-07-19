@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from "@/components/ui/button";
@@ -18,7 +19,7 @@ const FeatureCard = ({ icon: Icon, title, description }: { icon: React.ElementTy
 );
 
 const QuoteCard = ({ quote, author }: { quote: string, author: string }) => (
-    <blockquote className="bg-card p-6 rounded-lg shadow-sm">
+    <blockquote className="bg-card p-6 rounded-lg shadow-sm w-full">
         <p className="italic text-lg">"{quote}"</p>
         <cite className="block text-right mt-4 not-italic text-muted-foreground">- {author}</cite>
     </blockquote>
@@ -68,8 +69,8 @@ export default function LandingPage() {
                      <div className="flex items-center justify-center">
                         <div className="relative">
                              <div className="absolute inset-0.5 bg-gradient-to-r from-primary to-accent rounded-full blur-xl opacity-50"></div>
-                             <div className="relative p-8 bg-primary rounded-full">
-                                <Logo size="lg" className="h-48 w-48" />
+                             <div className="relative p-8 bg-primary rounded-full w-64 h-64 flex items-center justify-center">
+                                <Logo size="lg" />
                              </div>
                         </div>
                     </div>
@@ -113,7 +114,7 @@ export default function LandingPage() {
                                 A little inspiration goes a long way. 🚀
                             </p>
                         </div>
-                        <div className="grid md:grid-cols-2 gap-8">
+                        <div className="max-w-2xl mx-auto space-y-8">
                              <QuoteCard 
                                 quote="The limits of my language mean the limits of my world."
                                 author="Ludwig Wittgenstein"

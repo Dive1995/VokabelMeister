@@ -8,15 +8,17 @@ type LogoProps = {
 
 export function Logo({ size = 'md', className }: LogoProps) {
   const sizeClasses = {
-    sm: 'h-6 w-6',
-    md: 'h-8 w-8',
-    lg: 'h-12 w-12',
+    sm: { container: 'p-1', icon: 'h-4 w-4' },
+    md: { container: 'p-2', icon: 'h-6 w-6' },
+    lg: { container: 'p-4', icon: 'h-32 w-32' },
   };
 
+  const selectedSize = sizeClasses[size];
+
   return (
-    <div className={cn('flex items-center gap-2', className)}>
-      <div className="p-2 bg-primary rounded-lg">
-        <BrainCircuit className={cn(sizeClasses[size], 'text-primary-foreground')} />
+    <div className={cn('flex items-center justify-center', className)}>
+      <div className={cn(selectedSize.container, 'bg-primary rounded-lg')}>
+        <BrainCircuit className={cn(selectedSize.icon, 'text-primary-foreground')} />
       </div>
     </div>
   );
