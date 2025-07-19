@@ -142,7 +142,10 @@ export function MemoryGame({ words }: { words: VocabularyWord[] }) {
                         <div className={cn("relative w-full h-full text-center transition-transform duration-500", {
                             '[transform:rotateY(180deg)]': card.isFlipped || card.isMatched
                         })} style={{ transformStyle: 'preserve-3d' }}>
-                           <div className="absolute w-full h-full backface-hidden flex items-center justify-center p-2 rounded-lg bg-primary/20 hover:bg-primary/30 cursor-pointer border-2 border-primary/50">
+                           <div className={cn("absolute w-full h-full backface-hidden flex items-center justify-center p-2 rounded-lg cursor-pointer border-2", {
+                                "bg-primary/10 border-primary/50 hover:bg-primary/20 bg-[radial-gradient(hsl(var(--primary-foreground))_1px,transparent_1px)] [background-size:16px_16px]": card.type === 'word',
+                                "bg-accent/10 border-accent/50 hover:bg-accent/20 bg-[linear-gradient(45deg,transparent_48%,hsl(var(--accent-foreground))_50%,transparent_52%),linear-gradient(-45deg,transparent_48%,hsl(var(--accent-foreground))_50%,transparent_52%)] [background-size:16px_16px]": card.type === 'meaning'
+                           })}>
                                {/* Front of card */}
                            </div>
                            <div className="absolute w-full h-full backface-hidden [transform:rotateY(180deg)] flex items-center justify-center p-2 rounded-lg bg-card border-2"
@@ -172,4 +175,3 @@ const MemoryGameStyles = () => (
 );
 
 MemoryGame.Styles = MemoryGameStyles;
-
