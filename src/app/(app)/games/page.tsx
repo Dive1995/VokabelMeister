@@ -12,10 +12,10 @@ import { useEffect, useState } from "react";
 const games: Game[] = [
     {
         title: "Typing Race",
-        description: "Type the words as fast as you can. Coming soon!",
+        description: "Type the words as fast as you can to beat the clock.",
         icon: "Keyboard",
-        href: "#",
-        disabled: true,
+        href: "/games/typing-race",
+        disabled: false,
     },
     {
         title: "Memory Cards",
@@ -70,7 +70,7 @@ export default function GamesPage() {
                 <Card className="max-w-lg mx-auto text-center">
                     <CardHeader>
                         <CardTitle>No Words to Practice</CardTitle>
-                        <CardDescription>You need to select some words to learn before you can play games.</CardDescription>
+                        <CardDescription>You need to have at least one word set to "learning" to play games.</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <p className="mb-4">Go to the "Learn" tab and mark some words as "Learn This".</p>
