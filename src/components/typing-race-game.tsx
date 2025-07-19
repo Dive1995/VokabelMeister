@@ -57,9 +57,16 @@ export function TypingRaceGame({ words }: { words: VocabularyWord[] }) {
     
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const typedValue = e.target.value;
+        const currentWord = shuffledWords[currentWordIndex].word;
+
+        // Don't allow spaces at the beginning
+        if (typedValue.startsWith(' ')) {
+            return;
+        }
+
         setInputValue(typedValue);
 
-        if (typedValue.trim() === shuffledWords[currentWordIndex].word) {
+        if (typedValue.trim() === currentWord) {
             setScore(prev => prev + 1);
             setFeedback('correct');
             setTimeout(() => {
@@ -67,7 +74,7 @@ export function TypingRaceGame({ words }: { words: VocabularyWord[] }) {
                 setCurrentWordIndex(prev => (prev + 1) % shuffledWords.length);
                 setFeedback(null);
             }, 200);
-        } else if (shuffledWords[currentWordIndex].word.startsWith(typedValue)) {
+        } else if (currentWord.startsWith(typedValue)) {
             setFeedback(null);
         } else {
             if(typedValue.length > 0) setFeedback('incorrect');
@@ -85,6 +92,11 @@ export function TypingRaceGame({ words }: { words: VocabularyWord[] }) {
 
     const restartGame = () => {
         setGameState('waiting');
+        setScore(0);
+        setTimeLeft(GAME_DURATION);
+        setCurrentWordIndex(0);
+        setInputValue('');
+        setFeedback(null);
     };
 
     if (shuffledWords.length === 0) {
@@ -135,8 +147,23 @@ export function TypingRaceGame({ words }: { words: VocabularyWord[] }) {
         );
     }
 
-
     const currentWord = shuffledWords[currentWordIndex];
+    
+    const renderWord = () => {
+        const chars = currentWord.word.split('');
+        const inputChars = inputValue.split('');
+        return chars.map((char, index) => {
+            let className = "";
+            if (index < inputValue.length) {
+                if (char === inputChars[index]) {
+                    className = "text-green-400";
+                } else {
+                    className = "text-red-500";
+                }
+            }
+            return <span key={index} className={cn('transition-colors', className)}>{char}</span>
+        });
+    }
 
     return (
         <Card className="max-w-2xl mx-auto">
@@ -149,7 +176,9 @@ export function TypingRaceGame({ words }: { words: VocabularyWord[] }) {
             </CardHeader>
             <CardContent className="text-center py-12">
                 <p className="text-muted-foreground italic text-lg mb-2">{currentWord.meaning}</p>
-                <h2 className="text-5xl font-bold tracking-widest font-mono">{currentWord.word}</h2>
+                <h2 className="text-5xl font-bold tracking-widest font-mono select-none">
+                    {renderWord()}
+                </h2>
             </CardContent>
             <CardFooter>
                 <Input
