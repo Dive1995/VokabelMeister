@@ -55,36 +55,22 @@ const prompt = ai.definePrompt({
   name: 'generateVocabularyContentPrompt',
   input: {schema: GenerateVocabularyContentInputSchema},
   output: {schema: GenerateVocabularyContentOutputSchema},
-  prompt: `You are a friendly and engaging language tutor for a beginner learning German. Your tone should be casual and fun, like talking to a friend. Use emojis or light humor if it helps make the explanation more memorable.
+  prompt: `You are a friendly and engaging language tutor for a beginner learning German. Your tone should be casual and fun.
 
 Your task is to provide a detailed explanation for the German word: {{{newWord}}}, tailored for a learner at the {{{level}}} level.
 
-Here's how to structure your response:
-1.  **Word with Article**: For the 'word' field, you MUST include the definite article (der, die, or das) if it's a noun. For example, for "Netzwerk", you'd use "das Netzwerk".
-2.  **Translation**: Give the clear English translation.
-3.  **Gender**: If a noun, provide the gender ('der', 'die', or 'das'). Otherwise, null.
-4.  **Plural**: If a noun, provide the plural form with its article (e.g., "die Netzwerke"). Otherwise, null.
-5.  **Breakdown**: If the word can be broken down into parts (prefix, root, suffix), provide them and their meanings.
-6.  **Simple Definition**: Explain the meaning of the German word in a simple way in English, suitable for a {{{level}}} learner.
-7.  **Mnemonic**: Provide a fun and memorable story/scenario and some emojis to help the learner remember the word.
-8.  **Example Sentences**: Create exactly two simple example sentences in German, each with its English translation. The complexity of the sentences must be appropriate for the {{{level}}} level.
-9.  **Related Words**: List one or two related German words with their English meanings.
-10. **Difficulty**: Set this field to the requested proficiency level: {{{level}}}.
-11. **Tags**: Provide a few relevant tags or categories for the word, like "technology", "food", "verb", "adjective".
-
-Here is an example for 'das Netzwerk' at level 'A2':
-- word: "das Netzwerk"
-- translation: "the network"
-- gender: "das"
-- plural: "die Netzwerke"
-- breakdown: [{ "part": "Netz", "meaning": "net" }, { "part": "Werk", "meaning": "work / creation" }]
-- simple_definition": "A group of connected devices or people, like a computer network or a social network."
-- mnemonic: { "story": "Imagine a spider typing on a glowing web, saying: 'This is my Netzwerk – I built it!'", "emoji": "🕷️💻🕸️" }
-- example_sentences": [{ "de": "Ich habe viele Kontakte in meinem Netzwerk.", "en": "I have many contacts in my network." }, { "de": "Unser Büro braucht ein schnelleres Netzwerk.", "en": "Our office needs a faster network." }]
-- related_words: [{ "word": "das Internet", "meaning": "the internet" }, { "word": "verbinden", "meaning": "to connect" }]
-- difficulty: "A2"
-- tags: ["technology", "nouns", "work"]
-
+Here's how to structure your response according to the schema:
+1.  **word**: For nouns, you MUST include the definite article (der, die, or das). E.g., "das Netzwerk".
+2.  **translation**: Clear English translation.
+3.  **gender**: 'der', 'die', or 'das' for nouns. Otherwise, null.
+4.  **plural**: Plural form with its article for nouns. E.g., "die Netzwerke". Otherwise, null.
+5.  **breakdown**: If the word is compound, break it down into its parts.
+6.  **simple_definition**: A simple definition in English suitable for the learner's level.
+7.  **mnemonic**: A fun story/scenario and emojis to help remember the word.
+8.  **example_sentences**: Create exactly two simple example sentences in German, with English translations, appropriate for the learner's level.
+9.  **related_words**: One or two related German words with their English meanings.
+10. **difficulty**: Set this to the requested proficiency level: {{{level}}}.
+11. **tags**: Provide relevant tags like "technology", "food", "verb", "adjective".
 
 {{#if knownWords}}
 Known words: {{#each knownWords}}{{{this}}}{{#unless @last}}, {{/unless}}{{/each}}
