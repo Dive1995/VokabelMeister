@@ -69,7 +69,7 @@ Here's how to structure your response:
 7.  **Mnemonic**: Provide a fun and memorable story/scenario and some emojis to help the learner remember the word.
 8.  **Example Sentences**: Create exactly two simple example sentences in German, each with its English translation. The complexity of the sentences must be appropriate for the {{{level}}} level.
 9.  **Related Words**: List one or two related German words with their English meanings.
-10. **Difficulty**: This field MUST be set to the requested proficiency level: {{{level}}}.
+10. **Difficulty**: Set this field to the requested proficiency level: {{{level}}}.
 11. **Tags**: Provide a few relevant tags or categories for the word, like "technology", "food", "verb", "adjective".
 
 Here is an example for 'das Netzwerk' at level 'A2':
@@ -108,4 +108,3 @@ const generateVocabularyContentFlow = ai.defineFlow(
     return output!;
   }
 );
-
