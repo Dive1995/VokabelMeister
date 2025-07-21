@@ -8,8 +8,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Loader2 } from 'lucide-react';
 
-import { generateVocabularyList } from '@/ai/flows/generate-vocabulary-list';
-import { generateVocabularyContent } from '@/ai/flows/generate-vocabulary-content';
+import { generateVocabularyCards } from '@/ai/flows/generate-vocabulary-cards';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
@@ -34,12 +33,11 @@ const PasteWordsSchema = z.object({
 });
 
 const GenerateWordsSchema = z.object({
-    count: z.number().min(1).max(50),
+    count: z.number().min(1).max(20),
     level: z.string().min(1, 'Please select a level.'),
     category: z.string().min(1, 'Please enter a category.'),
 });
 
-type FormSchema = z.infer<typeof PasteWordsSchema> | z.infer<typeof GenerateWordsSchema>;
 
 export function VocabularySetupForm() {
   const [isLoading, setIsLoading] = useState(false);
@@ -58,22 +56,11 @@ export function VocabularySetupForm() {
   });
 
 
-  async function handleFinalGeneration(words: string[], level: string = 'A1') { // Default level for pasted words
-    setIsLoading(true);
-    try {
-      // Get existing known words to provide context to the AI
+  async function processVocabularyGeneration(cards: any[]) {
       const storedVocabulary: VocabularyWord[] = JSON.parse(sessionStorage.getItem('vocabulary') || '[]');
-      const knownWords = storedVocabulary.filter(w => w.status === 'known').map(w => w.word);
-
-      const generatedContentPromises = words.map(word =>
-        generateVocabularyContent({ newWord: word, level, knownWords })
-      );
-
-      const results = await Promise.all(generatedContentPromises);
-      
       const existingWords = new Set(storedVocabulary.map(w => w.word));
 
-      const newVocabulary: VocabularyWord[] = results
+      const newVocabulary: VocabularyWord[] = cards
         .filter(content => !existingWords.has(content.word)) // Filter out words that already exist in the main list
         .map((content, index) => {
           const partialWord = {
@@ -87,57 +74,73 @@ export function VocabularySetupForm() {
       if (newVocabulary.length === 0) {
         toast({
             title: 'No New Words Generated',
-            description: 'All generated words are already in your list. Try a different category or level.',
+            description: 'All generated words are already in your list or could not be processed. Try different words or a new category.',
+            variant: 'default'
         });
-        setIsLoading(false);
         return;
       }
 
       sessionStorage.setItem('newlyGeneratedVocabulary', JSON.stringify(newVocabulary));
       router.push('/review');
+  }
 
-    } catch (error) {
-      console.error('Failed to generate vocabulary content:', error);
-      toast({
-        variant: 'destructive',
-        title: 'Error Generating Word Details',
-        description: 'Failed to generate meanings and examples. Please try again.',
+
+  async function onPasteWordsSubmit(data: z.infer<typeof PasteWordsSchema>) {
+    setIsLoading(true);
+    try {
+      const words = data.wordList.split(',').map(word => word.trim()).filter(Boolean);
+      const storedVocabulary: VocabularyWord[] = JSON.parse(sessionStorage.getItem('vocabulary') || '[]');
+      const knownWords = storedVocabulary.filter(w => w.status === 'known').map(w => w.word);
+
+      // For pasted words, we can't be sure of the level, so we default to A2.
+      const response = await generateVocabularyCards({
+          level: 'A2', 
+          customWords: words,
+          knownWords,
       });
+
+      if (response.cards && response.cards.length > 0) {
+        await processVocabularyGeneration(response.cards);
+      } else {
+        toast({
+            variant: 'destructive',
+            title: 'Error processing words',
+            description: 'The AI could not process the words you provided. Please check for typos and try again.',
+        });
+      }
+    } catch(error) {
+        console.error('Failed to process custom words:', error);
+        toast({
+            variant: 'destructive',
+            title: 'Error Processing Words',
+            description: 'An unexpected error occurred. Please try again.',
+        });
     } finally {
         setIsLoading(false);
     }
   }
 
-
-  async function onPasteWordsSubmit(data: z.infer<typeof PasteWordsSchema>) {
-    
-    const words = data.wordList.split(',').map(word => word.trim()).filter(Boolean);
-    // For pasted words, we can't be sure of the level, so we'll let the AI estimate with a default.
-    // A more advanced implementation might run another flow to determine the average level first.
-    await handleFinalGeneration(words, 'A2'); 
-  }
-
   async function onGenerateWordsSubmit(data: z.infer<typeof GenerateWordsSchema>) {
-    
+    setIsLoading(true);
     try {
         const storedVocabulary: VocabularyWord[] = JSON.parse(sessionStorage.getItem('vocabulary') || '[]');
         const knownWords = storedVocabulary.map(w => w.word);
         
-        const response = await generateVocabularyList({
+        const response = await generateVocabularyCards({
             count: data.count,
             level: data.level,
             category: data.category,
             knownWords,
         });
-        if (response.words && response.words.length > 0) {
-            await handleFinalGeneration(response.words, data.level);
+
+        if (response.cards && response.cards.length > 0) {
+            await processVocabularyGeneration(response.cards);
         } else {
             toast({
                 variant: 'destructive',
                 title: 'No words generated',
                 description: 'The AI could not generate words for the given criteria. Please try different options.',
             });
-            
         }
     } catch(error) {
         console.error('Failed to generate vocabulary list:', error);
@@ -146,7 +149,8 @@ export function VocabularySetupForm() {
             title: 'Error Generating Words',
             description: 'Failed to generate a new word list. Please try again.',
         });
-        
+    } finally {
+        setIsLoading(false);
     }
   }
 
@@ -213,7 +217,7 @@ export function VocabularySetupForm() {
                       <FormControl>
                         <Slider
                             min={1}
-                            max={50}
+                            max={20}
                             step={1}
                             value={[field.value]}
                             onValueChange={(value) => field.onChange(value[0])}
