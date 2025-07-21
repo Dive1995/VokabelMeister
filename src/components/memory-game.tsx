@@ -170,8 +170,8 @@ export function MemoryGame({ words }: { words: VocabularyWord[] }) {
                             '[transform:rotateY(180deg)]': card.isFlipped || card.isMatched
                         })} style={{ transformStyle: 'preserve-3d' }}>
                            <div className={cn("absolute w-full h-full backface-hidden flex items-center justify-center p-2 rounded-lg cursor-pointer border-2", {
-                                "bg-primary/10 border-primary/50 hover:bg-primary/20 bg-[radial-gradient(hsl(var(--primary-foreground))_1px,transparent_1px)] [background-size:16px_16px]": card.type === 'word',
-                                "bg-accent/10 border-accent/50 hover:bg-accent/20 bg-[linear-gradient(45deg,transparent_48%,hsl(var(--accent-foreground))_50%,transparent_52%),linear-gradient(-45deg,transparent_48%,hsl(var(--accent-foreground))_50%,transparent_52%)] [background-size:16px_16px]": card.type === 'meaning'
+                                "bg-primary/10 border-primary/50 hover:bg-primary/20 bg-[radial-gradient(hsl(var(--primary)_/_0.3)_1px,transparent_1px)] [background-size:16px_16px]": card.type === 'word',
+                                "bg-accent/10 border-accent/50 hover:bg-accent/20 bg-[repeating-linear-gradient(45deg,hsl(var(--accent)_/_0.3),hsl(var(--accent)_/_0.3)_5px,transparent_5px,transparent_10px)]": card.type === 'meaning'
                            })}>
                                {/* Front of card */}
                            </div>
