@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -40,7 +41,7 @@ const GenerateVocabularyContentOutputSchema = z.object({
         word: z.string().describe('A related German word.'),
         meaning: z.string().describe('The English meaning of the related word.'),
     })).optional().describe('An optional list of related words.'),
-    difficulty: z.string().describe('The estimated CEFR level of the word (e.g., A1, B2). This MUST match the requested level.'),
+    difficulty: z.string().describe('The estimated CEFR level of the word (e.g., A1, B2).'),
     tags: z.array(z.string()).optional().describe('A list of relevant tags or categories for the word (e.g., "food", "travel", "verb").'),
 });
 
@@ -107,3 +108,4 @@ const generateVocabularyContentFlow = ai.defineFlow(
     return output!;
   }
 );
+
