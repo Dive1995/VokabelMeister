@@ -170,14 +170,14 @@ export function MemoryGame({ words }: { words: VocabularyWord[] }) {
                             '[transform:rotateY(180deg)]': card.isFlipped || card.isMatched
                         })} style={{ transformStyle: 'preserve-3d' }}>
                            <div className={cn("absolute w-full h-full backface-hidden flex items-center justify-center p-2 rounded-lg cursor-pointer border-2", {
-                                "bg-primary/10 border-primary/50 hover:bg-primary/20 bg-[radial-gradient(hsl(var(--primary)_/_0.3)_1px,transparent_1px)] [background-size:16px_16px]": card.type === 'word',
-                                "bg-accent/10 border-accent/50 hover:bg-accent/20 bg-[repeating-linear-gradient(45deg,hsl(var(--accent)_/_0.3),hsl(var(--accent)_/_0.3)_5px,transparent_5px,transparent_10px)]": card.type === 'meaning'
+                                "bg-primary/10 border-primary/50 hover:bg-primary/20 bg-[radial-gradient(hsl(var(--primary)_/_0.2)_1px,transparent_1px)] [background-size:16px_16px]": card.type === 'word',
+                                "bg-accent/10 border-accent/50 hover:bg-accent/20 bg-[repeating-linear-gradient(45deg,hsl(var(--accent)_/_0.2),hsl(var(--accent)_/_0.2)_5px,transparent_5px,transparent_10px)]": card.type === 'meaning'
                            })}>
-                               {/* Front of card */}
+                               {/* Front of card (face down) */}
                            </div>
                            <div className="absolute w-full h-full backface-hidden [transform:rotateY(180deg)] flex items-center justify-center p-2 rounded-lg bg-card border-2"
                                 style={card.isMatched ? { borderColor: 'hsl(var(--accent))' } : { borderColor: 'hsl(var(--border))' }}>
-                                {/* Back of card */}
+                                {/* Back of card (face up) */}
                                 <p className={cn("text-sm md:text-base font-medium", {
                                     "italic text-muted-foreground": card.type === 'meaning'
                                 })}>{card.content}</p>
