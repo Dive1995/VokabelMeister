@@ -38,7 +38,7 @@ const VocabularyCardSchema = z.object({
 });
 
 
-export const GenerateVocabularyCardsInputSchema = z.object({
+const GenerateVocabularyCardsInputSchema = z.object({
   count: z.number().optional().describe('The number of words to generate. Used if customWords is not provided.'),
   level: z.string().describe('The proficiency level (e.g., A1, B2) for which to generate content.'),
   category: z.string().optional().describe('The category of words to generate. Used if customWords is not provided.'),
